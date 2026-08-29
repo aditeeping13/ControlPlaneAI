@@ -1,0 +1,9 @@
+Metric,Always-On Baseline,ControlPlane Adaptive
+Requests,21,21
+Primary LLM Calls,19,14
+Primary Calls Avoided by Preflight,0,5
+AI Judge Calls,21,9
+Average Latency / Request (ms),4500.2,3055.2
+Avg Verification Latency (ms),2371.5,1295.9
+Routing Overhead (ms),1.0,0.6
+Expected Decisions Matched,10 / 21,16 / 21
