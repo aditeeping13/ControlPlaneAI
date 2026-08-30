@@ -143,9 +143,17 @@ def analyze(request: AnalyzeRequest):
                 retry_after = ai_response.get("retry_after_seconds")
                 ai_response = "Placeholder response: Gemini rate limit exceeded. Please use demo scenarios or try again later."
                 primary_llm_calls = 0
+            elif isinstance(ai_response, dict) and ai_response.get("error_type") == "PROVIDER_UNAVAILABLE" and is_demo_safe:
+                response_source = "fallback_provider_unavailable"
+                ai_response = "Placeholder response: Gemini is temporarily unavailable. Please use demo scenarios or try again later."
+                primary_llm_calls = 0
             elif isinstance(ai_response, dict) and ai_response.get("error_type") == "RATE_LIMITED":
                 response_source = "primary_llm_error"
                 ai_response = "Error: Gemini rate limit exceeded."
+                primary_llm_calls = 1
+            elif isinstance(ai_response, dict) and ai_response.get("error_type") == "PROVIDER_UNAVAILABLE":
+                response_source = "primary_llm_error"
+                ai_response = "Error: Gemini temporarily unavailable."
                 primary_llm_calls = 1
             else:
                 response_source = "primary_llm"
@@ -262,11 +270,12 @@ def analyze(request: AnalyzeRequest):
     provider_call_attempted = 0
     provider_call_succeeded = 0
     provider_rate_limited = 0
-    fallback_used = 1 if response_source == "fallback_rate_limited" else 0
+    provider_unavailable = 0
+    fallback_used = 1 if response_source in ["fallback_rate_limited", "fallback_provider_unavailable"] else 0
     retry_after_seconds = None
     call_type_history = []
     
-    if response_source in ["primary_llm", "fallback_rate_limited"]:
+    if response_source in ["primary_llm", "fallback_rate_limited", "fallback_provider_unavailable"]:
         provider_call_attempted += 1
         call_type_history.append("primary_generation")
         if response_source == "primary_llm":
@@ -275,6 +284,8 @@ def analyze(request: AnalyzeRequest):
             provider_rate_limited += 1
             if 'retry_after' in locals() and retry_after is not None:
                 retry_after_seconds = retry_after
+        elif response_source == "fallback_provider_unavailable":
+            provider_unavailable += 1
                 
     for s in signals:
         if s.detector == "ai_judge" and s.executed:
@@ -284,6 +295,8 @@ def analyze(request: AnalyzeRequest):
                 provider_rate_limited += 1
                 if s.metadata.get("retry_after") is not None:
                     retry_after_seconds = s.metadata.get("retry_after")
+            elif s.metadata.get("status") == "PROVIDER_UNAVAILABLE":
+                provider_unavailable += 1
             elif s.metadata.get("status") == "SUCCESS":
                 provider_call_succeeded += 1
                 
@@ -302,6 +315,7 @@ def analyze(request: AnalyzeRequest):
         provider_call_attempted=provider_call_attempted,
         provider_call_succeeded=provider_call_succeeded,
         provider_rate_limited=provider_rate_limited,
+        provider_unavailable=provider_unavailable,
         fallback_used=fallback_used,
         retry_after_seconds=retry_after_seconds,
         call_type_history=call_type_history

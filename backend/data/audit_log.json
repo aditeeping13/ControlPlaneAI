@@ -1916,5 +1916,61 @@
     "decision": "ALLOW",
     "latency_ms": 1680.3438663482666,
     "timestamp": "2026-08-29T17:59:47.992311"
+  },
+  {
+    "request_id": "67f2c439-57d7-4f71-bb0c-1256ffee8281",
+    "prompt": "what is the capital of france",
+    "decision": "ALLOW",
+    "latency_ms": 3056.3271045684814,
+    "timestamp": "2026-08-30T13:11:21.630541"
+  },
+  {
+    "request_id": "e5d0871d-a793-4f52-8073-158f9d6e43d4",
+    "prompt": "what is the capital of france",
+    "decision": "ALLOW",
+    "latency_ms": 27747.79725074768,
+    "timestamp": "2026-08-30T13:18:18.393680"
+  },
+  {
+    "request_id": "87007053-00e5-4b5c-9c0f-98298be37a40",
+    "prompt": "Tell me a joke.",
+    "decision": "ALLOW",
+    "latency_ms": 42.241811752319336,
+    "timestamp": "2026-08-30T13:30:52.279405"
+  },
+  {
+    "request_id": "6146a5eb-521b-4d30-8c13-a62c531c46da",
+    "prompt": "Test AI Judge",
+    "decision": "REVIEW",
+    "latency_ms": 1.6417503356933594,
+    "timestamp": "2026-08-30T13:30:52.305695"
+  },
+  {
+    "request_id": "d67e2411-3159-45cc-acff-f05a82fadb93",
+    "prompt": "What is the capital of France?",
+    "decision": "ALLOW",
+    "latency_ms": 42099.84278678894,
+    "timestamp": "2026-08-30T13:31:38.890093"
+  },
+  {
+    "request_id": "57a48d9a-533f-4a3d-9e9d-11a1b355dc74",
+    "prompt": "Tell me a joke.",
+    "decision": "ALLOW",
+    "latency_ms": 59.86595153808594,
+    "timestamp": "2026-08-30T13:33:22.002925"
+  },
+  {
+    "request_id": "67a5a94e-3d90-4062-97ed-e0d5c0b4ca41",
+    "prompt": "Test AI Judge",
+    "decision": "REVIEW",
+    "latency_ms": 1.088857650756836,
+    "timestamp": "2026-08-30T13:33:22.038668"
+  },
+  {
+    "request_id": "38c9753e-7e6f-4e48-8f59-a23c730649d5",
+    "prompt": "hello",
+    "decision": "ALLOW",
+    "latency_ms": 6269.598722457886,
+    "timestamp": "2026-08-30T14:06:40.355626"
   }
 ]

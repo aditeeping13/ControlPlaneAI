@@ -65,6 +65,13 @@ def generate_response(prompt: str, context: str = None) -> Tuple[str, int]:
                     "retry_after_seconds": retry_after,
                     "message": "Gemini quota/rate limit exceeded"
                 }, {"total": 0, "input": 0, "output": 0}
+            if "503" in error_str or "unavailable" in error_str or "experiencing high demand" in error_str or "try again later" in error_str:
+                return {
+                    "error_type": "PROVIDER_UNAVAILABLE",
+                    "provider": "gemini",
+                    "retryable": True,
+                    "message": "Gemini temporarily unavailable"
+                }, {"total": 0, "input": 0, "output": 0}
             return f"Error connecting to Gemini LLM: {str(e)}", {"total": 0, "input": 0, "output": 0}
             
     elif LLM_PROVIDER == "openai" and LLM_API_KEY:
@@ -131,6 +138,14 @@ def evaluate_semantic_risk(prompt: str, ai_response: str) -> Tuple[Optional[dict
                     "retryable": True,
                     "retry_after_seconds": retry_after,
                     "message": "Gemini quota/rate limit exceeded"
+                }, {"total": 0, "input": 0, "output": 0}
+            if "503" in error_str or "unavailable" in error_str or "experiencing high demand" in error_str or "try again later" in error_str:
+                return {
+                    "status": "PROVIDER_UNAVAILABLE",
+                    "error_type": "PROVIDER_UNAVAILABLE",
+                    "provider": "gemini",
+                    "retryable": True,
+                    "message": "Gemini temporarily unavailable"
                 }, {"total": 0, "input": 0, "output": 0}
             return None, {"total": 0, "input": 0, "output": 0}
             

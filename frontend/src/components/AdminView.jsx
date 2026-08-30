@@ -141,12 +141,26 @@ export function AdminView({ loading, response, requestPayload }) {
       const executed = response.checks_executed?.some(c => c.detector === det) || response.detector_results?.some(r => r.detector === det && r.executed);
       const res = response.detector_results?.find(r => r.detector === det);
       if (executed) {
+        let detStatus = res?.detected ? 'RISK DETECTED' : 'PASS';
+        let detDesc = res?.detected ? (res.evidence?.[0] || 'Risk pattern found') : 'No threat pattern detected';
+        let detColor = res?.detected ? 'text-rose-400' : 'text-emerald-400';
+        
+        if (res?.metadata?.status === 'PROVIDER_UNAVAILABLE') {
+            detStatus = 'FAILED — PROVIDER UNAVAILABLE';
+            detDesc = 'Provider temporarily unavailable';
+            detColor = 'text-rose-400';
+        } else if (res?.metadata?.status === 'RATE_LIMITED') {
+            detStatus = 'FAILED — RATE LIMITED';
+            detDesc = 'Provider rate limit exceeded';
+            detColor = 'text-rose-400';
+        }
+        
         items.push({ 
           step: step++, 
           module: det.replace('_', ' ').toUpperCase(), 
-          status: res?.detected ? 'RISK DETECTED' : 'PASS', 
-          desc: res?.detected ? (res.evidence?.[0] || 'Risk pattern found') : 'No threat pattern detected', 
-          color: res?.detected ? 'text-rose-400' : 'text-emerald-400' 
+          status: detStatus, 
+          desc: detDesc, 
+          color: detColor 
         });
       } else {
         items.push({ 
@@ -402,13 +416,16 @@ export function AdminView({ loading, response, requestPayload }) {
             {response.telemetry?.provider_rate_limited > 0 && (
               <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest bg-rose-950/40 inline-block px-2 py-0.5 rounded border border-rose-900/50 mt-1">RATE LIMITED</div>
             )}
+            {response.telemetry?.provider_unavailable > 0 && (
+              <div className="text-[10px] text-amber-400 font-bold uppercase tracking-widest bg-amber-950/40 inline-block px-2 py-0.5 rounded border border-amber-900/50 mt-1">TEMPORARILY UNAVAILABLE</div>
+            )}
             {response.telemetry?.fallback_used > 0 && (
               <div className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest bg-cyan-950/40 inline-block px-2 py-0.5 rounded border border-cyan-900/50 mt-1 ml-2">FALLBACK ACTIVE</div>
             )}
             {response.telemetry?.retry_after_seconds != null && (
               <div className="text-[10px] text-slate-500 mt-2">Retry after ~{response.telemetry.retry_after_seconds}s</div>
             )}
-            {!response.telemetry?.provider_rate_limited && !response.telemetry?.fallback_used && (
+            {!response.telemetry?.provider_rate_limited && !response.telemetry?.provider_unavailable && !response.telemetry?.fallback_used && (
               <div className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Available</div>
             )}
           </div>

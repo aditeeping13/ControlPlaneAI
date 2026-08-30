@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { analyzeRequest } from '../api/client';
 import { Send, CheckCircle, ShieldAlert, AlertTriangle, AlertCircle, Loader2, Activity, Settings, Database, ActivitySquare } from 'lucide-react';
 
@@ -80,13 +81,13 @@ export function UserView({ loading, setLoading, response, setResponse, error, se
   const renderStatusBadge = (decision) => {
     switch (decision) {
       case 'ALLOW':
-        return <div className="flex items-center gap-2 text-emerald-400 bg-emerald-950 px-4 py-2 rounded-full text-sm font-bold border border-emerald-800 shadow-inner"><CheckCircle size={18} /> Allowed by ControlPlane</div>;
+        return <div className="flex items-center gap-2 text-emerald-400 bg-emerald-950 px-4 py-2 rounded-full text-sm font-bold border border-emerald-800 shadow-inner"><CheckCircle size={18} /> Response Allowed</div>;
       case 'EDIT':
-        return <div className="flex items-center gap-2 text-blue-400 bg-blue-950 px-4 py-2 rounded-full text-sm font-bold border border-blue-800 shadow-inner"><CheckCircle size={18} /> Edited by ControlPlane</div>;
+        return <div className="flex items-center gap-2 text-blue-400 bg-blue-950 px-4 py-2 rounded-full text-sm font-bold border border-blue-800 shadow-inner"><CheckCircle size={18} /> Response Edited</div>;
       case 'REVIEW':
-        return <div className="flex items-center gap-2 text-amber-400 bg-amber-950 px-4 py-2 rounded-full text-sm font-bold border border-amber-800 shadow-inner"><AlertTriangle size={18} /> Flagged for Review</div>;
+        return <div className="flex items-center gap-2 text-amber-400 bg-amber-950 px-4 py-2 rounded-full text-sm font-bold border border-amber-800 shadow-inner"><AlertTriangle size={18} /> Response Flagged for Review</div>;
       case 'BLOCK':
-        return <div className="flex items-center gap-2 text-rose-400 bg-rose-950 px-4 py-2 rounded-full text-sm font-bold border border-rose-800 shadow-inner"><ShieldAlert size={18} /> Blocked by ControlPlane</div>;
+        return <div className="flex items-center gap-2 text-rose-400 bg-rose-950 px-4 py-2 rounded-full text-sm font-bold border border-rose-800 shadow-inner"><ShieldAlert size={18} /> Response Blocked</div>;
       default:
         return null;
     }
@@ -189,7 +190,7 @@ export function UserView({ loading, setLoading, response, setResponse, error, se
           </div>
         </div>
 
-        {/* RIGHT COLUMN: ControlPlane Result */}
+        {/* RIGHT COLUMN: CONTROLPLANE RESULT */}
         <div className="lg:col-span-5 relative h-full">
           {loading ? (
             <div className="bg-slate-900/90 rounded-xl p-8 border border-cyan-900/40 shadow-2xl h-full min-h-[400px] flex flex-col items-center justify-center text-cyan-400 space-y-6 relative overflow-hidden backdrop-blur-sm">
@@ -207,7 +208,7 @@ export function UserView({ loading, setLoading, response, setResponse, error, se
               <div className="mb-5 pb-4 border-b border-slate-800">
                 <h2 className="text-[11px] font-black text-slate-400 tracking-[0.2em] uppercase mb-4 flex items-center gap-2">
                   <ActivitySquare size={14} className="text-cyan-500"/>
-                  ControlPlane Result
+                  CONTROLPLANE RESULT
                 </h2>
                 <div className="mt-2">
                    {renderStatusBadge(response.decision)}
@@ -217,25 +218,25 @@ export function UserView({ loading, setLoading, response, setResponse, error, se
               {/* Execution Summary Chips */}
               <div className="flex flex-wrap gap-2 mb-6">
                  <div className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 flex items-center gap-2 text-xs">
-                    <span className="text-slate-500 uppercase font-semibold text-[10px] tracking-wider">Risk</span>
+                    <span className="text-slate-500 uppercase font-semibold text-[10px] tracking-wider">Risk:</span>
                     <span className="font-mono text-slate-200">{response.risk?.level || "N/A"}</span>
                  </div>
                  <div className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 flex items-center gap-2 text-xs">
-                    <span className="text-slate-500 uppercase font-semibold text-[10px] tracking-wider">Verify</span>
+                    <span className="text-slate-500 uppercase font-semibold text-[10px] tracking-wider">Verification:</span>
                     <span className="font-mono text-slate-200">{response.routing_policy?.verification_depth || "N/A"}</span>
                  </div>
                  <div className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 flex items-center gap-2 text-xs">
-                    <span className="text-slate-500 uppercase font-semibold text-[10px] tracking-wider">Action</span>
+                    <span className="text-slate-500 uppercase font-semibold text-[10px] tracking-wider">Response Action:</span>
                     <span className="font-mono text-slate-200">{response.decision}</span>
                  </div>
                  <div className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 flex items-center gap-2 text-xs">
-                    <span className="text-slate-500 uppercase font-semibold text-[10px] tracking-wider">Source</span>
+                    <span className="text-slate-500 uppercase font-semibold text-[10px] tracking-wider">Source:</span>
                     <span className="font-mono text-slate-200 flex items-center gap-1.5">
                       {response.response_source.includes('fallback') ? (
                         <>
-                          <span>Gemini</span>
-                          {response.response_source === 'fallback_rate_limited' && <span className="text-[9px] bg-amber-900/40 text-amber-400 px-1.5 py-0.5 rounded uppercase tracking-widest border border-amber-800/50">Rate Limited</span>}
-                          <span className="text-[9px] bg-cyan-900/40 text-cyan-400 px-1.5 py-0.5 rounded uppercase tracking-widest border border-cyan-800/50">Fallback Active</span>
+                          <span>Fallback</span>
+                          {response.response_source === 'fallback_rate_limited' && <span className="text-[9px] text-slate-400 font-normal ml-1">(Gemini rate limited)</span>}
+                          {response.response_source === 'fallback_provider_unavailable' && <span className="text-[9px] text-slate-400 font-normal ml-1">(Gemini temporarily unavailable)</span>}
                         </>
                       ) : (response.response_source === 'primary_llm' ? 'Gemini' : response.response_source)}
                     </span>
@@ -245,7 +246,7 @@ export function UserView({ loading, setLoading, response, setResponse, error, se
               <div className="flex-1 flex flex-col">
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Verified Response</h3>
                 <div className="prose prose-invert max-w-none text-slate-200 bg-slate-950 p-5 rounded-lg border border-slate-800/80 text-[15px] leading-relaxed shadow-inner font-medium flex-1 overflow-auto">
-                  {response.final_response}
+                  <ReactMarkdown>{response.final_response}</ReactMarkdown>
                 </div>
               </div>
 
@@ -253,9 +254,9 @@ export function UserView({ loading, setLoading, response, setResponse, error, se
           ) : (
             <div className="bg-slate-900/50 rounded-xl p-8 border border-slate-800/50 border-dashed h-full min-h-[400px] flex flex-col items-center justify-center text-center">
                <Database size={48} className="text-slate-700 mb-4 opacity-50" />
-               <h3 className="text-lg font-bold text-slate-400 mb-2">ControlPlane Result</h3>
+               <h3 className="text-lg font-bold text-slate-400 mb-2">CONTROLPLANE RESULT</h3>
                <p className="text-sm text-slate-500 max-w-[250px] leading-relaxed">
-                 Submit a request to see how ControlPlane evaluates and governs the response.
+                 Submit a request to see the governed response.
                </p>
                <div className="mt-8 flex items-center gap-3 text-xs font-mono text-slate-600 font-bold uppercase tracking-wider opacity-60">
                   <span>Risk</span>

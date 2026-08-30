@@ -32,8 +32,11 @@ def evaluate_semantic_risk(prompt: str, ai_response: str) -> List[RiskSignal]:
         status = "SUCCESS"
         if parsed_data is None:
             status = "ERROR"
-        if isinstance(original_parsed, dict) and original_parsed.get("status") == "RATE_LIMITED":
-            status = "RATE_LIMITED"
+        if isinstance(original_parsed, dict):
+            if original_parsed.get("status") == "RATE_LIMITED":
+                status = "RATE_LIMITED"
+            elif original_parsed.get("status") == "PROVIDER_UNAVAILABLE":
+                status = "PROVIDER_UNAVAILABLE"
             
         signals.append(RiskSignal(
             detector="ai_judge",

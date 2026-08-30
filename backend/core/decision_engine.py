@@ -50,10 +50,13 @@ def evaluate_decision(
         decision_trace.append("Action selected = REVIEW.")
         return "REVIEW", "High risk score requires human review", True
         
-    ai_judge_failed = any(s.metadata.get("status") in ["FAILED_REQUIRED_CHECK", "RATE_LIMITED"] for s in signals if s.detector == "ai_judge")
+    ai_judge_failed = any(s.metadata.get("status") in ["FAILED_REQUIRED_CHECK", "RATE_LIMITED", "PROVIDER_UNAVAILABLE"] for s in signals if s.detector == "ai_judge")
     if ai_judge_failed:
         has_rate_limit = any(s.metadata.get("status") == "RATE_LIMITED" for s in signals if s.detector == "ai_judge")
-        if has_rate_limit:
+        has_unavailable = any(s.metadata.get("status") == "PROVIDER_UNAVAILABLE" for s in signals if s.detector == "ai_judge")
+        if has_unavailable:
+            decision_trace.append("Required semantic verification could not be completed because the LLM provider was temporarily unavailable. Escalated for human review.")
+        elif has_rate_limit:
             decision_trace.append("Required semantic verification could not be completed because the LLM provider was rate-limited. Escalated for human review.")
         else:
             decision_trace.append("Required semantic verification could not be completed. Escalated for human review.")

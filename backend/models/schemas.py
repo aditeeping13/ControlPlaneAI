@@ -89,6 +89,7 @@ class TelemetryData(BaseModel):
     provider_call_attempted: int = 0
     provider_call_succeeded: int = 0
     provider_rate_limited: int = 0
+    provider_unavailable: int = 0
     fallback_used: int = 0
     retry_after_seconds: Optional[int] = None
     call_type_history: List[str] = []
